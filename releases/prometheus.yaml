@@ -1,0 +1,149 @@
+apiVersion: helm.fluxcd.io/v1
+kind: HelmRelease
+metadata:
+  name: prom
+  namespace: monitoring
+spec:
+  chart:
+    repository: https://kubernetes-charts.storage.googleapis.com
+    name: prometheus-operator
+    version: 9.1.0
+  values:
+    alertmanager:
+      ingress:
+        enabled: true
+        annotations:
+          traefik.ingress.kubernetes.io/router.middlewares: system-cf-access-auth@kubernetescrd
+        hosts:
+          - alertmanager.k8s.nickysemenza.com
+    grafana:
+      ingress:
+        enabled: true
+        annotations:
+          traefik.ingress.kubernetes.io/router.middlewares: system-cf-access-auth@kubernetescrd
+        hosts:
+          - grafana.k8s.nickysemenza.com
+      envValueFrom:
+        GF_DATABASE_PASSWORD:
+          secretKeyRef:
+            name: grafana-db-credentials
+            key: db-password
+      env:
+        GF_TRACING_JAEGER_ADDRESS: "jaeger-tracing-agent.default.svc.cluster.local:6831"
+        GF_INSTALL_PLUGINS: "grafana-clock-panel,grafana-simple-json-datasource,jdbranham-diagram-panel,grafana-piechart-panel,natel-discrete-panel"
+        GF_DATABASE_TYPE: postgres
+        GF_DATABASE_NAME: "grafana-k8s"
+        GF_DATABASE_HOST: "34.66.204.3"
+        GF_DATABASE_USER: "postgres"
+        GF_DATABASE_SSL_MODE: disable
+      nodeSelector:
+        location: cloud
+    prometheusOperator:
+      prometheusConfigReloaderImage:
+        # https://quay.io/repository/coreos/prometheus-config-reloader?tag=v0.20.0&tab=tags
+        tag: v0.39.0
+      nodeSelector:
+        location: cloud
+      image:
+        repository: raspbernetes/prometheus-operator
+    prometheus:
+      ingress:
+        enabled: true
+        annotations:
+          traefik.ingress.kubernetes.io/router.middlewares: system-cf-access-auth@kubernetescrd
+        hosts:
+          - prometheus.k8s.nickysemenza.com
+      prometheusSpec:
+        serviceMonitorSelectorNilUsesHelmValues: false
+        podMonitorSelectorNilUsesHelmValues: false
+
+      additionalPodMonitors:
+        - name: traefik-pod-monitor
+          podMetricsEndpoints:
+            - port: traefik
+              path: /metrics
+              interval: 15s
+          selector:
+            matchLabels:
+              app.kubernetes.io/instance: traefik
+          namespaceSelector:
+            matchNames:
+              - system
+
+      additionalServiceMonitors:
+        - name: kured
+          namespaceSelector:
+            matchNames:
+              - system
+          selector:
+            matchExpressions:
+              - key: app
+                operator: In
+                values:
+                  - kured
+          endpoints:
+            - port: metrics
+              interval: 15s
+        - name: digitalocean-exporter
+          namespaceSelector:
+            matchNames:
+              - exporters
+          selector:
+            matchExpressions:
+              - {
+                  key: app.kubernetes.io/name,
+                  operator: In,
+                  values: ["digitalocean-exporter"],
+                }
+          endpoints:
+            - port: http
+              interval: 60s
+        - name: cloudflare-exporter
+          namespaceSelector:
+            matchNames:
+              - exporters
+          selector:
+            matchLabels:
+              app.kubernetes.io/name: cloudflare-exporter
+          endpoints:
+            - port: http
+        - name: unifi-poller
+          namespaceSelector:
+            matchNames:
+              - exporters
+          selector:
+            matchLabels:
+              app.kubernetes.io/name: unifi-poller
+          endpoints:
+            - port: http
+    kubeControllerManager:
+      enabled: false
+    kubeEtcd:
+      enabled: false
+    kubeProxy:
+      enabled: false
+    kubeScheduler:
+      enabled: false
+---
+apiVersion: helm.fluxcd.io/v1
+kind: HelmRelease
+metadata:
+  name: karma
+  namespace: monitoring
+spec:
+  chart:
+    repository: https://kubernetes-charts.storage.googleapis.com
+    name: karma
+    version: 1.5.2
+  values:
+    ingress:
+      enabled: true
+      annotations:
+        traefik.ingress.kubernetes.io/router.middlewares: system-cf-access-auth@kubernetescrd
+      hosts:
+        - karma.k8s.nickysemenza.com
+    nodeSelector:
+      kubernetes.io/arch: amd64
+    env:
+      - name: ALERTMANAGER_URI
+        value: http://monitoring-prom-prometheus-alertmanager.monitoring.svc.cluster.local:9093

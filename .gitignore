@@ -1,0 +1,7 @@
+# secrets are in here
+config/
+workloads/
+kubeconfig
+kubeconfig/
+test.sh
+values/

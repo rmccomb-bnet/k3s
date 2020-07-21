@@ -1,0 +1,129 @@
+apiVersion: helm.fluxcd.io/v1
+kind: HelmRelease
+metadata:
+  name: mosquito
+  namespace: home
+spec:
+  chart:
+    repository: https://halkeye.github.io/helm-charts/
+    name: mosquitto
+    version: 0.2.0
+  values:
+    nodeSelector:
+      kubernetes.io/arch: amd64
+      location: home
+---
+apiVersion: helm.fluxcd.io/v1
+kind: HelmRelease
+metadata:
+  name: hass
+  namespace: home
+spec:
+  chart:
+    repository: https://billimek.com/billimek-charts/
+    name: home-assistant
+    version: 1.0.1
+  values:
+    ingress:
+      enabled: true
+      annotations:
+        traefik.ingress.kubernetes.io/router.middlewares: system-cf-access-auth@kubernetescrd
+      hosts:
+        - hass.k8s.nickysemenza.com
+
+persistence:
+  enabled: true
+  ##
+  ## If you want to use a volume on the host machine instead of a PVC:
+  # hostPath: /path/to/the/config/folder
+  accessMode: ReadWriteOnce
+  size: 1Gi
+
+configurator:
+  enabled: true
+
+  ingress:
+    enabled: true
+    annotations:
+      traefik.ingress.kubernetes.io/router.middlewares: system-cf-access-auth@kubernetescrd
+    hosts:
+      - hass-config.k8s.nickysemenza.com
+
+monitoring:
+  enabled: true
+  serviceMonitor:
+    enabled: true
+
+vscode:
+  enabled: true
+  ingress:
+    enabled: true
+    annotations:
+      traefik.ingress.kubernetes.io/router.middlewares: system-cf-access-auth@kubernetescrd
+    hosts:
+      - hass-vscode.k8s.nickysemenza.com
+
+nodeSelector:
+  kubernetes.io/arch: amd64
+  location: cloud
+---
+apiVersion: helm.fluxcd.io/v1
+kind: HelmRelease
+metadata:
+  name: node-red
+  namespace: home
+spec:
+  chart:
+    repository: https://billimek.com/billimek-charts/
+    name: node-red
+    version: 2.0.1
+  values:
+    nodeSelector:
+      kubernetes.io/arch: amd64
+      location: home
+    ingress:
+      enabled: true
+      annotations:
+        traefik.ingress.kubernetes.io/router.middlewares: system-cf-access-auth@kubernetescrd
+      hosts:
+        - node-red.k8s.nickysemenza.com
+    persistence:
+      enabled: true
+---
+apiVersion: helm.fluxcd.io/v1
+kind: HelmRelease
+metadata:
+  name: zigbee2mqtt
+  namespace: home
+spec:
+  chart:
+    repository: https://billimek.com/billimek-charts/
+    name: zigbee2mqtt
+    version: 0.1.0
+  values:
+    timezone: America/Los_Angeles
+    config:
+      # These will be applied ONLY on first run
+      homeassistant: true
+      permit_join: true
+      mqtt:
+        base_topic: zigbee2mqtt
+        server: "mqtt://mosquitto.home.svc.cluster.local"
+      serial:
+        port: /dev/ttyACM0
+      devices:
+        "0x00158d000421e252":
+          friendly_name: "e252"
+        "0x00158d000421e213":
+          friendly_name: "e213"
+        "0x00158d000421e143":
+          friendly_name: "e143"
+        "0x00158d000421e250":
+          friendly_name: "e250"
+
+    persistence:
+      enabled: true
+      size: 100Mi
+
+    nodeSelector:
+      kubernetes.io/hostname: apricot

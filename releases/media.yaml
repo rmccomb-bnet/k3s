@@ -1,0 +1,106 @@
+apiVersion: helm.fluxcd.io/v1
+kind: HelmRelease
+metadata:
+  name: plex
+  namespace: media
+spec:
+  chart:
+    repository: https://billimek.com/billimek-charts/
+    name: plex
+    version: 1.6.1
+  values:
+    ingress:
+      enabled: true
+      annotations:
+        traefik.ingress.kubernetes.io/router.middlewares: system-cf-access-auth@kubernetescrd
+      hosts:
+        - plex.k8s.nickysemenza.com
+    nodeSelector:
+      kubernetes.io/arch: amd64
+      location: home
+    persistence:
+      data:
+        claimName: plex-media
+      config:
+        size: 1Gi
+        # claimName: plex-media
+
+    timezone: America/Los_Angeles
+---
+apiVersion: helm.fluxcd.io/v1
+kind: HelmRelease
+metadata:
+  name: radarr
+  namespace: media
+spec:
+  chart:
+    repository: https://billimek.com/billimek-charts/
+    name: radarr
+    version: 4.1.1
+  values:
+    # Prometheus Metrics
+    exportarr:
+      enabled: false
+      image:
+        repository: onedr0p/exportarr
+        tag: v0.3.0
+        pullPolicy: IfNotPresent
+      url: "http://radarr.default.svc.cluster.local:7878"
+      apikey: "TODO"
+      port: 9708
+      serviceMonitor:
+        enabled: false
+    timezone: America/Los_Angeles
+    ingress:
+      enabled: true
+      annotations:
+        traefik.ingress.kubernetes.io/router.middlewares: system-cf-access-auth@kubernetescrd
+      hosts:
+        - radarr.k8s.nickysemenza.com
+
+    persistence:
+      config:
+        enabled: true
+        ## radarr configuration data Persistent Volume Storage Class
+        ## If defined, storageClassName: <storageClass>
+        ## If set to "-", storageClassName: "", which disables dynamic provisioning
+        ## If undefined (the default) or set to null, no storageClassName spec is
+        ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
+        ##   GKE, AWS & OpenStack)
+        ##
+        # storageClass: "-"
+        ##
+        ## If you want to reuse an existing claim, you can pass the name of the PVC using
+        ## the existingClaim variable
+        # existingClaim: your-claim
+        # subPath: some-subpath
+        accessMode: ReadWriteOnce
+        size: 1Gi
+        ## Do not delete the pvc upon helm uninstall
+        skipuninstall: false
+      media:
+        enabled: true
+        ## radarr media volume configuration
+        ## If defined, storageClassName: <storageClass>
+        ## If set to "-", storageClassName: "", which disables dynamic provisioning
+        ## If undefined (the default) or set to null, no storageClassName spec is
+        ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
+        ##   GKE, AWS & OpenStack)
+        ##
+        # storageClass: "-"
+        ##
+        ## If you want to reuse an existing claim, you can pass the name of the PVC using
+        ## the existingClaim variable
+        # existingClaim: your-claim
+        # subPath: some-subpath
+        accessMode: ReadWriteOnce
+        size: 1Gi
+        ## Do not delete the pvc upon helm uninstall
+        skipuninstall: false
+    # resources:
+    #   limits:
+    #     cpu: 100m
+    #     memory: 1024Mi
+    #   requests:
+    #     cpu: 10m
+    #     memory: 300Mi
