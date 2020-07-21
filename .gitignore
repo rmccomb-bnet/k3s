@@ -1,6 +1,6 @@
 # secrets are in here
 config/
-workloads/
+tmp/
 kubeconfig
 kubeconfig/
 test.sh
