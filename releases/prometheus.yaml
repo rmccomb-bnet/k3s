@@ -17,6 +17,11 @@ spec:
         hosts:
           - alertmanager.k8s.nickysemenza.com
     grafana:
+      sidecar:
+        dashboards:
+          enabled: true
+          label: grafana_datasource
+          searchNamespace: ALL
       ingress:
         enabled: true
         annotations:
