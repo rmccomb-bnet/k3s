@@ -3,23 +3,26 @@ version: 2.1
 jobs:
   validate-yamls:
     docker:
-      - image: stefanprodan/hrval:v2.9.0
+      - image: stefanprodan/hrval:v3.1.0
     steps:
       - checkout
       - run:
           name: Validate workloads
           environment:
-            KUBE_VER: "1.16.0"
+            KUBE_VER: "1.18.0"
           command: |
             kubeval --strict --ignore-missing-schemas --kubernetes-version ${KUBE_VER} -d namespaces,workloads,releases
       - run:
           name: Validate releases
           environment:
             IGNORE_VALUES: "false"
-            KUBE_VER: "1.16.0"
-            HELM_VER: "v2"
+            KUBE_VER: "1.18.0"
+            HELM_VER: "v3"
           command: |
             hrval releases/ $IGNORE_VALUES $KUBE_VER $HELM_VER
+      - store_artifacts:
+          path: /tmp
+          destination: hrval-artifacts
 
 workflows:
   version: 2
