@@ -23,7 +23,7 @@ spec:
         claimName: plex-media
       config:
         size: 1Gi
-        # claimName: plex-media
+        storageClass: "nfs-client-ops"
 
     timezone: America/Los_Angeles
 ---
@@ -61,6 +61,7 @@ spec:
     persistence:
       config:
         enabled: true
+        storageClass: "nfs-client-ops"
         ## radarr configuration data Persistent Volume Storage Class
         ## If defined, storageClassName: <storageClass>
         ## If set to "-", storageClassName: "", which disables dynamic provisioning

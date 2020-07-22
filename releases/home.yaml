@@ -31,41 +31,37 @@ spec:
       hosts:
         - hass.k8s.nickysemenza.com
 
-persistence:
-  enabled: true
-  ##
-  ## If you want to use a volume on the host machine instead of a PVC:
-  # hostPath: /path/to/the/config/folder
-  accessMode: ReadWriteOnce
-  size: 1Gi
+    persistence:
+      enabled: true
+      storageClass: "nfs-client-ops"
 
-configurator:
-  enabled: true
+    configurator:
+      enabled: true
 
-  ingress:
-    enabled: true
-    annotations:
-      traefik.ingress.kubernetes.io/router.middlewares: system-cf-access-auth@kubernetescrd
-    hosts:
-      - hass-config.k8s.nickysemenza.com
+      ingress:
+        enabled: true
+        annotations:
+          traefik.ingress.kubernetes.io/router.middlewares: system-cf-access-auth@kubernetescrd
+        hosts:
+          - hass-config.k8s.nickysemenza.com
 
-monitoring:
-  enabled: true
-  serviceMonitor:
-    enabled: true
+    monitoring:
+      enabled: true
+      serviceMonitor:
+        enabled: true
 
-vscode:
-  enabled: true
-  ingress:
-    enabled: true
-    annotations:
-      traefik.ingress.kubernetes.io/router.middlewares: system-cf-access-auth@kubernetescrd
-    hosts:
-      - hass-vscode.k8s.nickysemenza.com
+    vscode:
+      enabled: true
+      ingress:
+        enabled: true
+        annotations:
+          traefik.ingress.kubernetes.io/router.middlewares: system-cf-access-auth@kubernetescrd
+        hosts:
+          - hass-vscode.k8s.nickysemenza.com
 
-nodeSelector:
-  kubernetes.io/arch: amd64
-  location: cloud
+    nodeSelector:
+      kubernetes.io/arch: amd64
+      location: cloud
 ---
 apiVersion: helm.fluxcd.io/v1
 kind: HelmRelease
@@ -89,6 +85,7 @@ spec:
         - node-red.k8s.nickysemenza.com
     persistence:
       enabled: true
+      storageClass: "nfs-client-ops"
 ---
 apiVersion: helm.fluxcd.io/v1
 kind: HelmRelease
@@ -123,6 +120,7 @@ spec:
 
     persistence:
       enabled: true
+      storageClass: "nfs-client-ops"
       size: 100Mi
 
     nodeSelector:

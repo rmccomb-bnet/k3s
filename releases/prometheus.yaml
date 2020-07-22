@@ -43,6 +43,12 @@ spec:
         GF_DATABASE_SSL_MODE: disable
       nodeSelector:
         location: cloud
+      dashboards:
+        default:
+          # https://github.com/k8s-at-home/k8s-cluster/blob/master/cluster/monitoring/prometheus-operator/prometheus-operator.yaml#L100
+          flux:
+            url: https://raw.githubusercontent.com/fluxcd/helm-operator/master/chart/helm-operator/dashboards/helm-operator-dashboard.json
+            datasource: Prometheus
     prometheusOperator:
       prometheusConfigReloaderImage:
         # https://quay.io/repository/coreos/prometheus-config-reloader?tag=v0.20.0&tab=tags
