@@ -1,0 +1,44 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  namespace: media
+  name: mnt-nfs-media
+spec:
+  capacity:
+    storage: 5Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Delete
+  mountOptions:
+    - hard
+    - nfsvers=3
+  claimRef:
+    namespace: media
+    name: nfs-media
+  nfs:
+    path: /mnt/main/media
+    server: 10.0.0.11
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+        - matchExpressions:
+            - key: kubernetes.io/hostname
+              operator: In
+              values:
+                - strawberry
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  namespace: media
+  name: nfs-media
+spec:
+  accessModes:
+    - ReadWriteMany
+  volumeMode: Filesystem
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: ""
+  volumeName: mnt-nfs-media

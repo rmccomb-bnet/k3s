@@ -20,12 +20,18 @@ spec:
       location: home
     persistence:
       data:
-        claimName: plex-media
+        claimName: nfs-media
       config:
         size: 1Gi
         storageClass: "nfs-client-ops"
 
     timezone: America/Los_Angeles
+  valuesFrom:
+    - secretKeyRef:
+        name: plex-claim-token
+        namespace: media
+        key: values.yaml
+        optional: false
 ---
 apiVersion: helm.fluxcd.io/v1
 kind: HelmRelease
@@ -62,40 +68,13 @@ spec:
       config:
         enabled: true
         storageClass: "nfs-client-ops"
-        ## radarr configuration data Persistent Volume Storage Class
-        ## If defined, storageClassName: <storageClass>
-        ## If set to "-", storageClassName: "", which disables dynamic provisioning
-        ## If undefined (the default) or set to null, no storageClassName spec is
-        ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
-        ##   GKE, AWS & OpenStack)
-        ##
-        # storageClass: "-"
-        ##
-        ## If you want to reuse an existing claim, you can pass the name of the PVC using
-        ## the existingClaim variable
-        # existingClaim: your-claim
-        # subPath: some-subpath
         accessMode: ReadWriteOnce
         size: 1Gi
         ## Do not delete the pvc upon helm uninstall
         skipuninstall: false
       media:
         enabled: true
-        ## radarr media volume configuration
-        ## If defined, storageClassName: <storageClass>
-        ## If set to "-", storageClassName: "", which disables dynamic provisioning
-        ## If undefined (the default) or set to null, no storageClassName spec is
-        ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
-        ##   GKE, AWS & OpenStack)
-        ##
-        # storageClass: "-"
-        ##
-        ## If you want to reuse an existing claim, you can pass the name of the PVC using
-        ## the existingClaim variable
-        # existingClaim: your-claim
-        # subPath: some-subpath
-        accessMode: ReadWriteOnce
-        size: 1Gi
+        existingClaim: nfs-media
         ## Do not delete the pvc upon helm uninstall
         skipuninstall: false
     # resources:
