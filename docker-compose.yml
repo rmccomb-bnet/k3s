@@ -1,0 +1,12 @@
+version: "3.3"
+services:
+  test:
+    environment:
+      IGNORE_VALUES: "false"
+      KUBE_VER: "1.18.0"
+      HELM_VER: "v3"
+    volumes:
+      - "./releases:/releases"
+      - "./releasestmp:/tmp"
+    image: stefanprodan/hrval:v3.1.0
+    command: "/releases $IGNORE_VALUES $KUBE_VER $HELM_VER"

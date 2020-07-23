@@ -1,0 +1,90 @@
+# https://github.com/shift/domain_exporter/blob/master/contrib/k8s-domain-exporter.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: domain-exporter-config
+  namespace: exporters
+  labels:
+    app.kubernetes.io/name: domain-exporter
+data:
+  domains.yaml: |-
+    domains:
+      - nickysemenza.com
+      - nicky.fun
+      - nicky.space
+      - nicky.photos
+      - xn--zh8hmr.ws
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: exporters
+  name: domain-exporter
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: domain-exporter
+      app.kubernetes.io/instance: domain-exporter
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: domain-exporter
+        app.kubernetes.io/instance: domain-exporter
+    spec:
+      nodeSelector:
+        kubernetes.io/arch: amd64
+      containers:
+        - name: domain-exporter
+          image: quay.io/shift/domain_exporter
+          ports:
+            - containerPort: 9203
+              name: http
+              protocol: TCP
+          args:
+            [
+              "--config=/etc/domain-exporter/domains.yaml",
+              "--bind=:9203",
+              "--log.level=info",
+            ]
+          imagePullPolicy: Always
+          volumeMounts:
+            - name: config
+              mountPath: /etc/domain-exporter
+              readOnly: true
+      volumes:
+        - name: config
+          configMap:
+            defaultMode: 0600
+            name: domain-exporter-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: domain-exporter
+  namespace: exporters
+  labels:
+    app.kubernetes.io/name: domain-exporter
+    app.kubernetes.io/instance: domain-exporter
+spec:
+  ports:
+    - name: http
+      port: 9203
+      protocol: TCP
+      targetPort: http
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: domain-exporter
+    app.kubernetes.io/instance: domain-exporter
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: "domain-exporter"
+  namespace: exporters
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: domain-exporter
+  endpoints:
+    - port: http

@@ -8,6 +8,12 @@ spec:
     repository: https://kubernetes-charts.storage.googleapis.com
     name: prometheus-operator
     version: 9.1.0
+  valuesFrom:
+    - secretKeyRef:
+        name: prom-operator-values
+        namespace: monitoring
+        key: values.yaml
+        optional: false
   values:
     alertmanager:
       ingress:
@@ -28,6 +34,18 @@ spec:
           traefik.ingress.kubernetes.io/router.middlewares: system-cf-access-auth@kubernetescrd
         hosts:
           - grafana.k8s.nickysemenza.com
+      grafana.ini:
+        users:
+          allow_sign_up: "false"
+          auto_assign_org: "true"
+          auto_assign_org_role: "Editor"
+        auth:
+          proxy:
+            enabled: "true"
+            header_name: "Cf-Access-Authenticated-User-Email"
+            header_property: "email"
+            auto_sign_up: "true"
+
       envValueFrom:
         GF_DATABASE_PASSWORD:
           secretKeyRef:
@@ -43,11 +61,87 @@ spec:
         GF_DATABASE_SSL_MODE: disable
       nodeSelector:
         location: cloud
+      plugins:
+        - natel-discrete-panel
+      dashboardProviders:
+        dashboardproviders.yaml:
+          apiVersion: 1
+          providers:
+            - name: "default"
+              orgId: 1
+              folder: ""
+              type: file
+              disableDeletion: false
+              editable: true
+              options:
+                path: /var/lib/grafana/dashboards/default
       dashboards:
         default:
           # https://github.com/k8s-at-home/k8s-cluster/blob/master/cluster/monitoring/prometheus-operator/prometheus-operator.yaml#L100
           flux:
             url: https://raw.githubusercontent.com/fluxcd/helm-operator/master/chart/helm-operator/dashboards/helm-operator-dashboard.json
+            datasource: Prometheus
+          vmware-cluster:
+            url: https://raw.githubusercontent.com/pryorda/vmware_exporter/master/dashboards/cluster.json
+            datasource: Prometheus
+          vmware-esx:
+            url: https://raw.githubusercontent.com/pryorda/vmware_exporter/master/dashboards/esx.json
+            datasource: Prometheus
+          vmware-esxi:
+            url: https://raw.githubusercontent.com/pryorda/vmware_exporter/master/dashboards/esxi.json
+            datasource: Prometheus
+          vmware-virtualmachine:
+            url: https://raw.githubusercontent.com/pryorda/vmware_exporter/master/dashboards/virtualmachine.json
+            datasource: Prometheus
+          # curl -s  'https://grafana.com/api/dashboards?orderBy=name&direction=asc&includeLogo=1&page=1&pageSize=100&dataSourceSlugIn=prometheus&filter=unifi-poller' | \
+          # jq '.items[] as $item | {slug: $item.slug, revision: $item.revision, gnetId: $item.id}'
+          unifi-poller-client-dpi:
+            revision: 4
+            gnetId: 11310
+            datasource: Prometheus
+          unifi-poller-client-insights:
+            revision: 8
+            gnetId: 11315
+            datasource: Prometheus
+          unifi-poller-network-sites:
+            revision: 4
+            gnetId: 11311
+            datasource: Prometheus
+          unifi-poller-uap-insights:
+            revision: 9
+            gnetId: 11314
+            datasource: Prometheus
+          unifi-poller-usg-insights:
+            revision: 8
+            gnetId: 11313
+            datasource: Prometheus
+          unifi-poller-usw-insights:
+            revision: 8
+            gnetId: 11312
+            datasource: Prometheus
+          go-processes:
+            revision: 2
+            gnetId: 6671
+            datasource: Prometheus
+          transmission:
+            revision: 1
+            gnetId: 8259
+            datasource: Prometheus
+          vmware-stats:
+            revision: 1
+            gnetId: 11243
+            datasource: Prometheus
+          node-exporter-server-metrics:
+            revision: 8
+            gnetId: 405
+            datasource: Prometheus
+          node-exporter-full:
+            revision: 20
+            gnetId: 1860
+            datasource: Prometheus
+          netdata:
+            revision: 1
+            gnetId: 7107
             datasource: Prometheus
     prometheusOperator:
       prometheusConfigReloaderImage:
@@ -67,7 +161,17 @@ spec:
       prometheusSpec:
         serviceMonitorSelectorNilUsesHelmValues: false
         podMonitorSelectorNilUsesHelmValues: false
-
+        additionalScrapeConfigs:
+          - job_name: "netdata-scrape"
+            metrics_path: "/api/v1/allmetrics"
+            params:
+              # format: prometheus | prometheus_all_hosts
+              # You can use `prometheus_all_hosts` if you want Prometheus to set the `instance` to your hostname instead of IP
+              format: [prometheus]
+            honor_labels: true
+            static_configs:
+              - targets:
+                  - 10.0.0.11:19999
       additionalPodMonitors:
         - name: traefik-pod-monitor
           podMetricsEndpoints:
@@ -76,11 +180,21 @@ spec:
               interval: 15s
           selector:
             matchLabels:
-              app.kubernetes.io/instance: traefik
+              app: svclb-system-traefik
           namespaceSelector:
             matchNames:
               - system
-
+        - name: traefik-pod-monitor2
+          podMetricsEndpoints:
+            - port: traefik
+              path: /metrics
+              interval: 15s
+          selector:
+            matchLabels:
+              app.kubernetes.io/instance: system-traefik
+          namespaceSelector:
+            matchNames:
+              - system
       additionalServiceMonitors:
         - name: kured
           namespaceSelector:
