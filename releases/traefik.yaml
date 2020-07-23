@@ -34,6 +34,12 @@ spec:
         expose: true
         exposedPort: 8191
         protocol: UDP
+      plextcp:
+        port: 32400
+        # hostPort: 8443
+        expose: true
+        exposedPort: 32400
+        protocol: TCP
 ---
 apiVersion: traefik.containo.us/v1alpha1
 kind: IngressRoute

@@ -1,0 +1,50 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: plex-https
+  namespace: media
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`10.0.0.198`)
+      kind: Rule
+      services:
+        - name: media-plex-tcp
+          port: 32400
+  # tls:
+  #   certResolver: le
+  #   options: {}
+
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: plex-http
+  namespace: media
+spec:
+  entryPoints:
+    - web
+  routes:
+    - match: Host(`10.0.0.198`)
+      kind: Rule
+      services:
+        - name: media-plex-tcp
+          port: 32400
+      # middlewares:
+      #   - name: redirect
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: plex-tcp
+  namespace: media
+spec:
+  entryPoints:
+    - plextcp
+  routes:
+    - match: Host(`10.0.0.198`)
+      kind: Rule
+      services:
+        - name: media-media-plex-tcp-32400@kubernetes
+          kind: TraefikService
