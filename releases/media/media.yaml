@@ -47,16 +47,12 @@ spec:
   values:
     # Prometheus Metrics
     exportarr:
-      enabled: false
-      image:
-        repository: onedr0p/exportarr
-        tag: v0.3.0
-        pullPolicy: IfNotPresent
-      url: "http://radarr.default.svc.cluster.local:7878"
-      apikey: "TODO"
+      enabled: true
+      url: "http://media-radarr.media.svc.cluster.local:7878"
+      apikey: "f3f92f2793cd4563b76d346a9b6a8e54"
       port: 9708
       serviceMonitor:
-        enabled: false
+        enabled: true
     timezone: America/Los_Angeles
     ingress:
       enabled: true
@@ -64,7 +60,6 @@ spec:
         traefik.ingress.kubernetes.io/router.middlewares: system-cf-access-auth@kubernetescrd
       hosts:
         - radarr.k8s.nickysemenza.com
-
     persistence:
       config:
         enabled: true
@@ -78,10 +73,3 @@ spec:
         existingClaim: nfs-media
         ## Do not delete the pvc upon helm uninstall
         skipuninstall: false
-    # resources:
-    #   limits:
-    #     cpu: 100m
-    #     memory: 1024Mi
-    #   requests:
-    #     cpu: 10m
-    #     memory: 300Mi
