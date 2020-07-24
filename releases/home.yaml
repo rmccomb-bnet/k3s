@@ -50,6 +50,9 @@ spec:
       enabled: true
       serviceMonitor:
         enabled: true
+        bearerTokenSecret:
+          name: hass-access-token
+          key: token
 
     vscode:
       enabled: true
