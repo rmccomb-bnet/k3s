@@ -1,9 +1,10 @@
 apiVersion: helm.fluxcd.io/v1
 kind: HelmRelease
 metadata:
-  name: mosquito
+  name: mosquitto
   namespace: home
 spec:
+  releaseName: mosquitto
   chart:
     repository: https://halkeye.github.io/helm-charts/
     name: mosquitto
