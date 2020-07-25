@@ -47,7 +47,7 @@ spec:
   values:
     # Prometheus Metrics
     exportarr:
-      enabled: true
+      enabled: false
       url: "http://media-radarr.media.svc.cluster.local:7878"
       apikey: "f3f92f2793cd4563b76d346a9b6a8e54"
       port: 9708
