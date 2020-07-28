@@ -25,7 +25,6 @@ spec:
         externalTrafficPolicy: Local # https://github.com/rancher/k3s/issues/1652 need this for X-Real-Ip?
 
     nodeSelector:
-      kubernetes.io/arch: amd64
       location: cloud
     ports:
       fooudp:

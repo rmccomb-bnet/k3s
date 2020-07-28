@@ -17,7 +17,6 @@ spec:
       hosts:
         - plex.k8s.nickysemenza.com
     nodeSelector:
-      kubernetes.io/arch: amd64
       location: home
     persistence:
       data:

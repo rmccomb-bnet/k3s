@@ -151,6 +151,10 @@ spec:
         location: cloud
       image:
         repository: raspbernetes/prometheus-operator
+    prometheus-node-exporter:
+      tolerations:
+        - key: "arm"
+          operator: "Exists"
     prometheus:
       ingress:
         enabled: true
@@ -267,8 +271,6 @@ spec:
         traefik.ingress.kubernetes.io/router.middlewares: system-cf-access-auth@kubernetescrd
       hosts:
         - karma.k8s.nickysemenza.com
-    nodeSelector:
-      kubernetes.io/arch: amd64
     env:
       - name: ALERTMANAGER_URI
         value: http://monitoring-prom-prometheus-alertmanager.monitoring.svc.cluster.local:9093

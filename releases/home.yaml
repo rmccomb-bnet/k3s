@@ -11,7 +11,6 @@ spec:
     version: 0.2.0
   values:
     nodeSelector:
-      kubernetes.io/arch: amd64
       location: home
 ---
 apiVersion: helm.fluxcd.io/v1
@@ -64,7 +63,6 @@ spec:
           - hass-vscode.k8s.nickysemenza.com
 
     nodeSelector:
-      kubernetes.io/arch: amd64
       location: cloud
 ---
 apiVersion: helm.fluxcd.io/v1
@@ -79,7 +77,6 @@ spec:
     version: 2.0.1
   values:
     nodeSelector:
-      kubernetes.io/arch: amd64
       location: home
     ingress:
       enabled: true
@@ -129,3 +126,6 @@ spec:
 
     nodeSelector:
       kubernetes.io/hostname: apricot
+    tolerations:
+      - key: "arm"
+        operator: "Exists"

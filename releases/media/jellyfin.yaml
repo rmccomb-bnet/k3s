@@ -17,7 +17,6 @@ spec:
       hosts:
         - jellyfin.k8s.nickysemenza.com
     nodeSelector:
-      kubernetes.io/arch: amd64
       location: home
     persistence:
       config:

@@ -15,6 +15,9 @@ spec:
       repository: raspbernetes/kured
     configuration:
       period: "1h"
+    tolerations:
+      - key: "arm"
+        operator: "Exists"
   valuesFrom:
     - secretKeyRef:
         name: kured-slack-webhook
@@ -44,7 +47,6 @@ spec:
     extraArgs:
       - --enable-skip-login
       - --enable-insecure-login
-      # - --system-banner="Welcome to Kubernetes"
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding

@@ -25,5 +25,4 @@ spec:
         ## Do not delete the pvc upon helm uninstall
         skipuninstall: false
     nodeSelector:
-      kubernetes.io/arch: amd64
       location: home

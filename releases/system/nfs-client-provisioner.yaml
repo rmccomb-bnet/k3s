@@ -33,5 +33,3 @@ spec:
     storageClass:
       # defaultClass: true
       name: "nfs-client-ops"
-  nodeSelector:
-    kubernetes.io/arch: amd64
