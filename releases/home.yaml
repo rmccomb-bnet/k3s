@@ -97,7 +97,7 @@ spec:
   chart:
     repository: https://billimek.com/billimek-charts/
     name: zigbee2mqtt
-    version: 0.1.0
+    version: 0.2.0
   values:
     timezone: America/Los_Angeles
     config:
@@ -129,3 +129,11 @@ spec:
     tolerations:
       - key: "arm"
         operator: "Exists"
+    assistant:
+      enabled: true
+      ingress:
+        enabled: true
+        annotations:
+          traefik.ingress.kubernetes.io/router.middlewares: system-cf-access-auth@kubernetescrd
+        hosts:
+          - zigbee.k8s.nickysemenza.com
