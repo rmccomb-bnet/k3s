@@ -49,7 +49,7 @@ spec:
   entryPoints:
     - web
   routes:
-    - match: Host(`traefik.k8s.test`)
+    - match: Host(`traefik.k8s.nickysemenza.com`)
       kind: Rule
       services:
         - name: api@internal

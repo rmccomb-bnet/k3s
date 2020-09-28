@@ -7,7 +7,7 @@ spec:
   chart:
     repository: https://kubernetes-charts.storage.googleapis.com
     name: prometheus-operator
-    version: 9.1.0
+    version: 9.3.2 # TODO: https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack
   valuesFrom:
     - secretKeyRef:
         name: prom-operator-values
