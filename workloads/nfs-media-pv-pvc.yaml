@@ -18,7 +18,7 @@ spec:
     name: nfs-media
   nfs:
     path: /mnt/main/media
-    server: 10.0.0.11
+    server: freenas.lan.nickysemenza.com
   nodeAffinity:
     required:
       nodeSelectorTerms:

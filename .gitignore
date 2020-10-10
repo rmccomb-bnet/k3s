@@ -1,7 +1,4 @@
 # secrets are in here
 config/
-tmp/
+config
 kubeconfig
-kubeconfig/
-test.sh
-values/
