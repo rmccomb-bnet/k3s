@@ -5,9 +5,9 @@ metadata:
   namespace: media
 spec:
   chart:
-    repository: https://billimek.com/billimek-charts/
+    repository: https://k8s-at-home.com/charts/
     name: sonarr
-    version: 4.1.1
+    version: 6.0.1
   values:
     # Prometheus Metrics
     exportarr:

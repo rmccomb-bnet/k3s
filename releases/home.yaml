@@ -20,9 +20,9 @@ metadata:
   namespace: home
 spec:
   chart:
-    repository: https://billimek.com/billimek-charts/
+    repository: https://k8s-at-home.com/charts/
     name: home-assistant
-    version: 1.0.1
+    version: 2.5.1
   values:
     ingress:
       enabled: true
@@ -72,9 +72,9 @@ metadata:
   namespace: home
 spec:
   chart:
-    repository: https://billimek.com/billimek-charts/
+    repository: https://k8s-at-home.com/charts/
     name: node-red
-    version: 2.0.1
+    version: 3.1.0
   values:
     nodeSelector:
       location: home
