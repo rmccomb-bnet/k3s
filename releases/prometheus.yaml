@@ -306,7 +306,7 @@ spec:
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
-  name: "snmp-synology"
+  name: "snmp-synology-cantaloupe"
   namespace: monitoring
 spec:
   endpoints:
@@ -315,7 +315,27 @@ spec:
         module:
           - synology
         target:
-          - 10.0.0.206
+          - cantaloupe.lan.nickysemenza.com
+      path: /snmp
+      port: http
+      scrapeTimeout: 10s
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: prometheus-snmp-exporter
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: "snmp-synology-files"
+  namespace: monitoring
+spec:
+  endpoints:
+    - honorLabels: true
+      params:
+        module:
+          - synology
+        target:
+          - synology-files.ts.nickysemenza.com
       path: /snmp
       port: http
       scrapeTimeout: 10s
