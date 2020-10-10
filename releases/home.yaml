@@ -6,9 +6,9 @@ metadata:
 spec:
   releaseName: mosquitto
   chart:
-    repository: https://halkeye.github.io/helm-charts/
+    repository: https://k8s-at-home.com/charts/
     name: mosquitto
-    version: 0.2.0
+    version: 0.3.3
   values:
     nodeSelector:
       location: home

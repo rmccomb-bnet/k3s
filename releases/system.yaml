@@ -7,7 +7,7 @@ spec:
   chart:
     repository: https://weaveworks.github.io/kured
     name: kured
-    version: 2.0.3
+    version: 2.2.0
   values:
     service:
       create: true
@@ -35,7 +35,7 @@ spec:
   chart:
     repository: https://kubernetes.github.io/dashboard/
     name: kubernetes-dashboard
-    version: 2.8.0
+    version: 2.8.1
   values:
     ingress:
       enabled: true

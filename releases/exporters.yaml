@@ -22,9 +22,9 @@ metadata:
   namespace: exporters
 spec:
   chart:
-    repository: https://halkeye.github.io/helm-charts/
+    repository: https://k8s-at-home.com/charts/
     name: unifi-poller
-    version: 0.1.1
+    version: 2.0.1
   values:
     image:
       tag: stable
